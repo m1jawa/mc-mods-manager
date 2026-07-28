@@ -8,10 +8,10 @@ public class InfoManager {
     
     private InfoManager() {}
 
-    public static void printHttpResponse(HttpResponse<String> response) {
+    public static void printHttpResponse(HttpResponse<String> response){
         
         if (response == null) {
-            ErrorsManager.printCustomMessage("Can't find mods: response is null");
+            ErrorsManager.printCustomMessage("HTTP response is null");
             return;
         }
 

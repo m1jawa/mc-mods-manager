@@ -11,7 +11,7 @@ import java.time.Duration;
 
 public class HttpManager {
 
-    private static final String USER_AGENT = "m1jawa/mc-mods-updater";
+    private static final String USER_AGENT = "m1jawa/mc-mods-updater (https://github.com/m1jawa/mc-mods-updater)";
     private static final HttpClient DEFAULT_CLIENT = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
                 .connectTimeout(Duration.ofSeconds(10))
@@ -25,7 +25,7 @@ public class HttpManager {
     }
 
     public static HttpResponse<String> sendRequest(HttpClient client, String url) throws IOException, InterruptedException{
-        // requesting mods
+        // requesting a mod
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("User-Agent", USER_AGENT)

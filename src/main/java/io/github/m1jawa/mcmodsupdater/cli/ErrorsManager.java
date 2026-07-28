@@ -5,7 +5,7 @@ public class ErrorsManager {
 
     private ErrorsManager() {}
     
-    public static void printExceptionMessage(Exception e){
+    public static void printExceptionMessage(Throwable e){
         if (e == null) return;
         System.err.println(e.getMessage() != null ? e.getMessage() : e.toString());
     }
