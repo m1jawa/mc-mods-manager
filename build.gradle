@@ -1,5 +1,10 @@
 plugins {
     id 'java'
+    id 'application'
+}
+
+application {
+    mainClass = 'io.github.m1jawa.mcmodsmanager.cli.ModsManagerCommand' 
 }
 
 group = 'io.github.m1jawa'
@@ -11,6 +16,7 @@ repositories {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.14.0'
+    implementation 'info.picocli:picocli:4.7.7'
 }
 
 java {
