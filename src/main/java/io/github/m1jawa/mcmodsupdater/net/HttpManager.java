@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Path;
 import java.time.Duration;
 
 
@@ -35,5 +36,23 @@ public class HttpManager {
 
         // looking for a response
         return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public static String download(String url, Path targetDir) throws IOException, InterruptedException{
+        return download(DEFAULT_CLIENT, url, targetDir);
+    }
+
+    public static String download(HttpClient client, String url, Path targetDir) throws IOException, InterruptedException{
+        // fetching filename and creating new path
+        String fileName = url.substring(url.lastIndexOf('/') + 1);
+        Path targetFilePath = targetDir.resolve(fileName);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+        
+        client.send(request, HttpResponse.BodyHandlers.ofFile(targetFilePath));
+
+        return fileName;
     }
 }

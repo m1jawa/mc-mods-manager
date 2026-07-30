@@ -6,34 +6,39 @@ import java.nio.file.Path;
 import java.util.List;
 
 import io.github.m1jawa.mcmodsupdater.cli.ErrorsManager;
-import io.github.m1jawa.mcmodsupdater.exceptions.ManifestNotFoundException;
-import io.github.m1jawa.mcmodsupdater.file.ModDataFetcher;
 import io.github.m1jawa.mcmodsupdater.file.ModsScanner;
 import io.github.m1jawa.mcmodsupdater.model.ModData;
+import io.github.m1jawa.mcmodsupdater.model.ModLoader;
+import io.github.m1jawa.mcmodsupdater.modrinth.ModrinthService;
+import io.github.m1jawa.mcmodsupdater.net.AsyncDownloader;
 
 
 public class McModsUpdater {
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
 
         Path modDir = Path.of("testmods");
+        Path newModsDir = Path.of("newmods");
+        String gameVer = "1.20.1";
+        ModLoader loader = ModLoader.valueOf("FABRIC");
 
+        //Getting list of mods in directory
         try {
-            List<Path> mods = ModsScanner.scanDirectory(modDir);
+            
+            List<ModData> modsData = ModsScanner.fetchAllFromDirectory(modDir, loader);
 
-            mods.forEach(path -> {
-                    try {
-                        ModData mod = ModDataFetcher.fetchFabricModData(path);
-                        System.out.println("file: %s; id: %s; name: %s".formatted(path.getFileName(), mod.id(), mod.name()));
-                    } catch (IOException e) {
-                        ErrorsManager.printCustomMessage("Got an IO Exception while fetching %s data: %s".formatted(path.getFileName(), e.getMessage()));
-                    } catch (ManifestNotFoundException e) {
-                        ErrorsManager.printExceptionMessage(e);
-                    }
-                });
+            if (modsData.isEmpty()) {
+                ErrorsManager.printCustomMessage("No valid mods found in " + modDir);
+                return;
+            } 
+            
+            System.out.printf("Found %d mods. Starting async download for Minecraft %s%n", modsData.size(), gameVer);
+
+            AsyncDownloader.downloadAllViaModrinth(modsData, gameVer, newModsDir, ModrinthService.getInstance());
 
         } catch (IOException e) {
-            ErrorsManager.printCustomMessage("Failed to scan mods directory: " + e.getMessage());
+            ErrorsManager.printExceptionMessage(e);
         }
+
     }
 }
