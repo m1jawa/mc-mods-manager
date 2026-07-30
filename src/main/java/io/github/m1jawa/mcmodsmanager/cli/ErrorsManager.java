@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.cli;
+package io.github.m1jawa.mcmodsmanager.cli;
 
 
 public class ErrorsManager {

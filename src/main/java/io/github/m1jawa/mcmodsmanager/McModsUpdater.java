@@ -1,16 +1,16 @@
-package io.github.m1jawa.mcmodsupdater;
+package io.github.m1jawa.mcmodsmanager;
 
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import io.github.m1jawa.mcmodsupdater.cli.ErrorsManager;
-import io.github.m1jawa.mcmodsupdater.file.ModsScanner;
-import io.github.m1jawa.mcmodsupdater.model.ModData;
-import io.github.m1jawa.mcmodsupdater.model.ModLoader;
-import io.github.m1jawa.mcmodsupdater.modrinth.ModrinthService;
-import io.github.m1jawa.mcmodsupdater.net.AsyncDownloader;
+import io.github.m1jawa.mcmodsmanager.cli.ErrorsManager;
+import io.github.m1jawa.mcmodsmanager.file.ModsScanner;
+import io.github.m1jawa.mcmodsmanager.model.ModData;
+import io.github.m1jawa.mcmodsmanager.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.modrinth.ModrinthService;
+import io.github.m1jawa.mcmodsmanager.net.AsyncDownloader;
 
 
 public class McModsUpdater {

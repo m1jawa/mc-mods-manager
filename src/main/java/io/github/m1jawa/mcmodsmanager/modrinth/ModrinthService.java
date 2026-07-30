@@ -1,18 +1,18 @@
-package io.github.m1jawa.mcmodsupdater.modrinth;
+package io.github.m1jawa.mcmodsmanager.modrinth;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 
-import io.github.m1jawa.mcmodsupdater.ModDownloaderProvider;
-import io.github.m1jawa.mcmodsupdater.cli.ErrorsManager;
-import io.github.m1jawa.mcmodsupdater.exceptions.ManifestNotFoundException;
-import io.github.m1jawa.mcmodsupdater.exceptions.ModNotFoundException;
-import io.github.m1jawa.mcmodsupdater.exceptions.UnexpectedResponseStructureException;
-import io.github.m1jawa.mcmodsupdater.file.IOManager;
-import io.github.m1jawa.mcmodsupdater.file.ModDataFetcher;
-import io.github.m1jawa.mcmodsupdater.model.ModData;
-import io.github.m1jawa.mcmodsupdater.net.HttpManager;
+import io.github.m1jawa.mcmodsmanager.ModDownloaderProvider;
+import io.github.m1jawa.mcmodsmanager.cli.ErrorsManager;
+import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
+import io.github.m1jawa.mcmodsmanager.exceptions.ModNotFoundException;
+import io.github.m1jawa.mcmodsmanager.exceptions.UnexpectedResponseStructureException;
+import io.github.m1jawa.mcmodsmanager.file.IOManager;
+import io.github.m1jawa.mcmodsmanager.file.ModDataFetcher;
+import io.github.m1jawa.mcmodsmanager.model.ModData;
+import io.github.m1jawa.mcmodsmanager.net.HttpManager;
 
 public class ModrinthService implements ModDownloaderProvider{
 

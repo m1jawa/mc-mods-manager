@@ -42,4 +42,5 @@ bin/
 Thumbs.db
 
 # === test / debug files ===
-testmods
+testmods/
+newmods/

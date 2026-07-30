@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.file;
+package io.github.m1jawa.mcmodsmanager.file;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,9 +12,9 @@ import java.util.jar.JarFile;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.github.m1jawa.mcmodsupdater.exceptions.ManifestNotFoundException;
-import io.github.m1jawa.mcmodsupdater.model.ModData;
-import io.github.m1jawa.mcmodsupdater.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
+import io.github.m1jawa.mcmodsmanager.model.ModData;
+import io.github.m1jawa.mcmodsmanager.model.ModLoader;
 
 public class ModDataFetcher {
 

@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.net;
+package io.github.m1jawa.mcmodsmanager.net;
 
 
 import java.io.IOException;

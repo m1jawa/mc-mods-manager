@@ -1,11 +1,11 @@
-package io.github.m1jawa.mcmodsupdater.modrinth;
+package io.github.m1jawa.mcmodsmanager.modrinth;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.github.m1jawa.mcmodsupdater.exceptions.UnexpectedResponseStructureException;
+import io.github.m1jawa.mcmodsmanager.exceptions.UnexpectedResponseStructureException;
 
 public class ModrinthJsonParser {
     private ModrinthJsonParser() {}

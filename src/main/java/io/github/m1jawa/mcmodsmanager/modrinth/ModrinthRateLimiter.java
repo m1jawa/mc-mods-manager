@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.modrinth;
+package io.github.m1jawa.mcmodsmanager.modrinth;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

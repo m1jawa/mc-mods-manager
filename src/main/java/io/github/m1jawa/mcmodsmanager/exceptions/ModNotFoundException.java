@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.exceptions;
+package io.github.m1jawa.mcmodsmanager.exceptions;
 
 public class ModNotFoundException extends Exception{
     

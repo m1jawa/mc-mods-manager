@@ -1,10 +1,10 @@
-package io.github.m1jawa.mcmodsupdater.modrinth;
+package io.github.m1jawa.mcmodsmanager.modrinth;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import io.github.m1jawa.mcmodsupdater.model.ModData;
-import io.github.m1jawa.mcmodsupdater.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.model.ModData;
+import io.github.m1jawa.mcmodsmanager.model.ModLoader;
 
 public class ModrinthUrlManager {
 

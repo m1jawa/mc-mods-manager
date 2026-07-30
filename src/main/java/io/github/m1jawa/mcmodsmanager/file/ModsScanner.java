@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.file;
+package io.github.m1jawa.mcmodsmanager.file;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import io.github.m1jawa.mcmodsupdater.cli.ErrorsManager;
-import io.github.m1jawa.mcmodsupdater.exceptions.ManifestNotFoundException;
-import io.github.m1jawa.mcmodsupdater.model.ModData;
-import io.github.m1jawa.mcmodsupdater.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.cli.ErrorsManager;
+import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
+import io.github.m1jawa.mcmodsmanager.model.ModData;
+import io.github.m1jawa.mcmodsmanager.model.ModLoader;
 
 public class ModsScanner {
     private ModsScanner() {}

@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.model;
+package io.github.m1jawa.mcmodsmanager.model;
 
 public enum ModLoader {
     FABRIC("fabric.mod.json"),

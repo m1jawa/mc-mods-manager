@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.net;
+package io.github.m1jawa.mcmodsmanager.net;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -8,9 +8,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.github.m1jawa.mcmodsupdater.ModDownloaderProvider;
-import io.github.m1jawa.mcmodsupdater.cli.ErrorsManager;
-import io.github.m1jawa.mcmodsupdater.model.ModData;
+import io.github.m1jawa.mcmodsmanager.ModDownloaderProvider;
+import io.github.m1jawa.mcmodsmanager.cli.ErrorsManager;
+import io.github.m1jawa.mcmodsmanager.model.ModData;
 
 public class AsyncDownloader {
 

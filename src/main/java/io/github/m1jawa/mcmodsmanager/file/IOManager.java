@@ -1,4 +1,4 @@
-package io.github.m1jawa.mcmodsupdater.file;
+package io.github.m1jawa.mcmodsmanager.file;
 
 import java.io.IOException;
 import java.nio.file.Files;
