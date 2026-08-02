@@ -5,12 +5,13 @@ import java.net.http.HttpResponse;
 import java.nio.file.Path;
 
 import io.github.m1jawa.mcmodsmanager.ModDownloaderProvider;
-import io.github.m1jawa.mcmodsmanager.cli.ErrorsManager;
+import io.github.m1jawa.mcmodsmanager.cli.InfoManager;
 import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
 import io.github.m1jawa.mcmodsmanager.exceptions.ModNotFoundException;
 import io.github.m1jawa.mcmodsmanager.exceptions.UnexpectedResponseStructureException;
 import io.github.m1jawa.mcmodsmanager.file.IOManager;
 import io.github.m1jawa.mcmodsmanager.file.ModDataFetcher;
+import io.github.m1jawa.mcmodsmanager.model.InfoType;
 import io.github.m1jawa.mcmodsmanager.model.ModData;
 import io.github.m1jawa.mcmodsmanager.net.HttpManager;
 
@@ -67,7 +68,7 @@ public class ModrinthService implements ModDownloaderProvider{
                     .firstValueAsLong("Retry-After")
                     .orElse(5L);
 
-            ErrorsManager.printCustomMessage("[WARN] Rate limit (HTTP 429) hit for Modrinth. Waiting for %d seconds".formatted(retryAfterSeconds));
+            InfoManager.log("Rate limit (HTTP 429) hit for Modrinth. Waiting for %d seconds".formatted(retryAfterSeconds), InfoType.WARN);
 
             Thread.sleep(retryAfterSeconds * 1000);
             return executeApiRequest(url); // Recursive retry

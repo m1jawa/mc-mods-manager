@@ -1,10 +1,14 @@
 package io.github.m1jawa.mcmodsmanager.cli;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
 import io.github.m1jawa.mcmodsmanager.file.ModsScanner;
+import io.github.m1jawa.mcmodsmanager.model.InfoType;
+import io.github.m1jawa.mcmodsmanager.model.LoadedModsData;
 import io.github.m1jawa.mcmodsmanager.model.ModData;
 import io.github.m1jawa.mcmodsmanager.model.ModLoader;
 import io.github.m1jawa.mcmodsmanager.modrinth.ModrinthService;
@@ -62,36 +66,58 @@ public class ModsManagerCommand implements Callable<Integer> {
         
         switch (mode.toLowerCase()) {
             case "fd" -> {
+
+                if ( gameVersion == null ) {
+                    InfoManager.log("Version was not entered", InfoType.ERROR);
+                    return 1;
+                }
+
                 Path targetDir = (outputDir != null) ? outputDir : inputDir;
 
-                System.out.println("=== Minecraft Mods Updater ===");
-                System.out.printf("Target Version : %s%n", gameVersion);
-                System.out.printf("Mod Loader     : %s%n", modLoader);
-                System.out.printf("Source Dir     : %s%n", inputDir.toAbsolutePath());
-                System.out.printf("Output Dir     : %s%n%n", targetDir.toAbsolutePath());
+                System.out.println("=== Minecraft Mods Manager | downloading ===");
+                System.out.printf("Target version : %s%n", gameVersion);
+                System.out.printf("Mod loader     : %s%n", modLoader);
+                System.out.printf("Source dir     : %s%n", inputDir.toAbsolutePath());
+                System.out.printf("Output dir     : %s%n%n", targetDir.toAbsolutePath());
 
                 try {
                     List<ModData> mods = ModsScanner.fetchAllFromDirectory(inputDir, ModLoader.valueOf(modLoader));
 
                     if (mods.isEmpty()) {
-                        ErrorsManager.printCustomMessage("No valid mods found in directory: " + inputDir);
+                        InfoManager.log("No valid mods found in directory: " + inputDir, InfoType.ERROR);
                         return 1;
                     }
 
-                    System.out.printf("Found %d mods. Starting update...%n%n", mods.size());
+                    InfoManager.log(
+                        "Found %d mods. Starting download...%n%n".formatted(mods.size()),
+                        InfoType.INFO
+                    );
 
-                    AsyncDownloader.downloadAllViaModrinth(mods, gameVersion, targetDir, ModrinthService.getInstance());
+                    LoadedModsData downloadedModsResult = AsyncDownloader.downloadAllViaModrinth(mods, gameVersion, targetDir, ModrinthService.getInstance());
 
-                    System.out.println("All operations completed successfully!");
+                    if (downloadedModsResult.failedCount() == 0) {
+                        InfoManager.log(
+                            "All %d mods downloaded succesfully!".formatted(downloadedModsResult.totalMods()),
+                            InfoType.SUCCESS
+                        );
+                    } else {
+                        InfoManager.log(
+                            "Downloaded only %d mods of %d".formatted(downloadedModsResult.succesCount(), downloadedModsResult.totalMods()),
+                            InfoType.SUCCESS
+                        );
+
+                        //TODO: asking if user wants manually install failed mods, manaul installation
+                    }
+
                     return 0;
 
-                } catch (Exception e) {
-                    ErrorsManager.printExceptionMessage(e);
+                } catch (IOException | ManifestNotFoundException e) {
+                    InfoManager.log(e.getMessage(), InfoType.ERROR);
                     return 1;
                 }
             }
             default -> {
-                ErrorsManager.printCustomMessage("Unknown mode: " + mode);
+                InfoManager.log("Unknown mode: " + mode, InfoType.ERROR);
                 return 1;
             }
         }

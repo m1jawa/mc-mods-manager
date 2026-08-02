@@ -3,11 +3,10 @@ package io.github.m1jawa.mcmodsmanager.file;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import io.github.m1jawa.mcmodsmanager.cli.ErrorsManager;
 import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
 import io.github.m1jawa.mcmodsmanager.model.ModData;
 import io.github.m1jawa.mcmodsmanager.model.ModLoader;
@@ -24,7 +23,7 @@ public class ModsScanner {
         }
     }
 
-    public static List<ModData> fetchAllFromDirectory(Path dir, ModLoader loader) throws IOException{
+    public static List<ModData> fetchAllFromDirectory(Path dir, ModLoader loader) throws IOException, ManifestNotFoundException{
         switch (loader) {
             case ModLoader.FABRIC -> {
                 return fetchFabricModsDataFromDirectory(dir);
@@ -39,24 +38,23 @@ public class ModsScanner {
         return null;
     }
 
-    private static List<ModData> fetchFabricModsDataFromDirectory(Path dir) throws IOException{
+    private static List<ModData> fetchFabricModsDataFromDirectory(Path dir) throws IOException, ManifestNotFoundException{
         // getting list of .jar files
         List<Path> mods = scanDirectory(dir);
 
         // getting the manifest
-        List<ModData> modsData = mods.stream()
-                .map(path -> {
-                    try {
-                        return ModDataFetcher.fetchFabricModData(path);
-                    } catch (IOException e) {
-                        ErrorsManager.printCustomMessage("Got an IO Exception while fetching %s data: %s".formatted(path.getFileName().toString(), e.getMessage()));
-                        return null;
-                    } catch (ManifestNotFoundException e) {
-                        ErrorsManager.printExceptionMessage(e);
-                        return null;
-                    }
-                }).filter(Objects::nonNull).toList();
+        List<ModData> modsData = new ArrayList<>();
 
+        for (Path path : mods) {
+                try {
+                    modsData.add( ModDataFetcher.fetchFabricModData(path) );
+                } catch (IOException e) {
+                    throw new IOException("Got an IO Exception while fetching %s data: %s".formatted(path.getFileName().toString(), e.getMessage()));
+                } catch (ManifestNotFoundException e) {
+                    throw new ManifestNotFoundException("Can't find %s manifest".formatted(path.getFileName()));
+                }
+                
+        }
         return modsData;
     }
 }

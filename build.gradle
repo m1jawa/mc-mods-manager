@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.graalvm.buildtools.native' version '0.10.1'
 }
 
 application {
@@ -17,9 +18,10 @@ repositories {
 dependencies {
     implementation 'com.google.code.gson:gson:2.14.0'
     implementation 'info.picocli:picocli:4.7.7'
+    annotationProcessor 'info.picocli:picocli-codegen:4.7.6'
 }
 
-java {
+java { 
     toolchain {
         languageVersion = JavaLanguageVersion.of(26)
     }
