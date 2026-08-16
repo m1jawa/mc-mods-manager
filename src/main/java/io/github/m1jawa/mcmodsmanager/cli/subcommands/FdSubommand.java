@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 
 import io.github.m1jawa.mcmodsmanager.cli.InfoManager;
 import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
+import io.github.m1jawa.mcmodsmanager.exceptions.UnknownLoaderException;
 import io.github.m1jawa.mcmodsmanager.file.ModsScanner;
 import io.github.m1jawa.mcmodsmanager.model.InfoType;
 import io.github.m1jawa.mcmodsmanager.model.LoadedModsData;
@@ -46,8 +47,7 @@ public class FdSubommand implements Callable<Integer>{
 
     @Option(
         names = {"-l", "--loader"},
-        defaultValue = "FABRIC",
-        description = "Mod loader to target (values: FABRIC; default: ${DEFAULT-VALUE}).",
+        description = "Mod loader to target (values: FABRIC).",
         required = true
     )
     private String modLoader;
@@ -55,8 +55,6 @@ public class FdSubommand implements Callable<Integer>{
 
     @Override
     public Integer call() {
-        
-        
 
         if ( gameVersion == null ) {
             InfoManager.log("Version was not entered", InfoType.ERROR);
@@ -72,7 +70,7 @@ public class FdSubommand implements Callable<Integer>{
         System.out.printf("Output dir     : %s%n%n", targetDir.toAbsolutePath());
 
         try {
-            List<ModData> mods = ModsScanner.fetchAllFromDirectory(inputDir, ModLoader.valueOf(modLoader));
+            List<ModData> mods = ModsScanner.fetchAllFromDirectory(inputDir, ModLoader.fromString(modLoader));
 
             if (mods.isEmpty()) {
                 InfoManager.log("No valid mods found in directory: " + inputDir, InfoType.ERROR);
@@ -102,7 +100,7 @@ public class FdSubommand implements Callable<Integer>{
 
             return 0;
 
-        } catch (IOException | ManifestNotFoundException e) {
+        } catch (IOException | ManifestNotFoundException | UnknownLoaderException e) {
             InfoManager.log(e.getMessage(), InfoType.ERROR);
             return 1;
         }
