@@ -1,0 +1,45 @@
+name: Build Executables
+
+on: 
+  push:
+    branches: [ "master"]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: mcmm-linux
+            binary_path: build/native/nativeCompile/mcmm
+          - os: windows-latest
+            artifact_name: mcmm-windows.exe
+            binary_path: build/native/nativeCompile/mcmm.exe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM JDK
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '26'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+
+      - name: Build Native Binary with Gradle
+        run: ./gradlew nativeCompile
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.binary_path }}
+          if-no-files-found: error
