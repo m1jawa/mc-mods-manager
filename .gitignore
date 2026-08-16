@@ -1,10 +1,12 @@
+!gradle/wrapper/gradle-wrapper.jar
+
 # === Compiled Java class files ===
 *.class
 
 # === Log files ===
 *.log
 
-# === Package Files (JAR / WAR / EAR) ===
+# === Package Files (WAR / EAR) ===
 *.jar
 *.war
 *.nar
