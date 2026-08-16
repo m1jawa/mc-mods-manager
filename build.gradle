@@ -9,6 +9,14 @@ application {
     mainClass = 'io.github.m1jawa.mcmodsmanager.cli.ModsManagerCommand' 
 }
 
+graalvmNative {
+    binaries {
+        main {
+            imageName = 'mcmm'
+        }
+    }
+}
+
 group = 'io.github.m1jawa'
 version = '1.0.0'
 
