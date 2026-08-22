@@ -26,9 +26,22 @@ public enum ModLoader {
     public static ModLoader fromString(String value) throws UnknownLoaderException {
         if (value == null) return null;
         try {
-            return valueOf(value);
+            return valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new UnknownLoaderException("Unknown loader: " + value);
         }
+    }
+
+    public static String getValues() {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (ModLoader modLoader : ModLoader.values()) {
+            sb.append(modLoader.toString()).append(", ");
+        }
+
+        sb.delete(sb.length() - 2, sb.length());
+
+        return sb.toString();
     }
 }

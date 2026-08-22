@@ -3,8 +3,12 @@ package io.github.m1jawa.mcmodsmanager.modrinth;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import io.github.m1jawa.mcmodsmanager.ModDownloaderProvider;
+import io.github.m1jawa.mcmodsmanager.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.net.ModDownloaderProvider;
 import io.github.m1jawa.mcmodsmanager.cli.InfoManager;
 import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
 import io.github.m1jawa.mcmodsmanager.exceptions.ModNotFoundException;
@@ -26,7 +30,7 @@ public class ModrinthService implements ModDownloaderProvider{
     }
 
     @Override
-    public void downloadMod(ModData mod, String gameVersion, Path targetDir) throws IOException, InterruptedException, UnexpectedResponseStructureException, ModNotFoundException, ManifestNotFoundException{
+    public void downloadMod(ModData mod, String gameVersion, Path targetDir, boolean requiresSimilarityConfirmation) throws IOException, InterruptedException, UnexpectedResponseStructureException, ModNotFoundException, ManifestNotFoundException{
         // requesting a slug
         String slug = getModSlug(mod, gameVersion); // first api request
         
@@ -44,18 +48,31 @@ public class ModrinthService implements ModDownloaderProvider{
         // downloading
         String fileName = HttpManager.download(downloadUrl, targetDir); // request to CDN, no need to use executeApiRequest()
 
-        // checking if downloaded wrong mod
-        try {
-            ModData newMod = ModDataFetcher.fetchFabricModData(targetDir.resolve(fileName));
+        // checking if downloaded the same mod
+        if (requiresSimilarityConfirmation) {
+            try {
+                ModData newMod = ModDataFetcher.fetchFabricModData(targetDir.resolve(fileName)); //todo DIP
 
-            if (!mod.id().replace('_', '-').equalsIgnoreCase(newMod.id().replace('_', '-'))) {
+                if (!mod.id().replace('_', '-').equalsIgnoreCase(newMod.id().replace('_', '-'))) {
+                    IOManager.removeFile(targetDir.resolve(fileName));
+                    throw new ModNotFoundException("Downloaded mod ID '%s' does not match target mod ID '%s'".formatted(newMod.id(), mod.id()));
+                }
+            } catch (ManifestNotFoundException e) {
                 IOManager.removeFile(targetDir.resolve(fileName));
-                throw new ModNotFoundException("Downloaded mod ID '%s' does not match target mod ID '%s'".formatted(newMod.id(), mod.id()));
+                throw e;
             }
-        } catch (ManifestNotFoundException e) {
-            IOManager.removeFile(targetDir.resolve(fileName));
-            throw e;
         }
+    }
+
+    public static List<ModData> getSearchedModsData(String name, String gameVersion, ModLoader loader, int searchLimit, int page) throws IOException, InterruptedException, UnexpectedResponseStructureException {
+        String searchUrl = ModrinthUrlManager.getModNameSearchUrl(name, gameVersion, loader, searchLimit, page-1);
+        HttpResponse<String> response = executeApiRequest(searchUrl);
+
+        if (response.statusCode() != 200) {
+            throw new IOException("Failed to execute '%s' request. HTTP status: %s".formatted(searchUrl, response.statusCode()));
+        }
+
+        return ModrinthJsonParser.extractModsDataFromSearch(response.body(), loader);
     }
 
     private static HttpResponse<String> executeApiRequest(String url) throws IOException, InterruptedException{

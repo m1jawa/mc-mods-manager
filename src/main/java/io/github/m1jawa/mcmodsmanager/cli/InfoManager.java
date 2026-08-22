@@ -13,11 +13,11 @@ public class InfoManager {
 
     public static void log(String log, InfoType type) {
         switch (type) {
-            case INFO -> { System.out.println("[INFO]: " + log); break; }
-            case SUCCESS -> { System.out.println("[SUCCES]: " + log); break; }
-            case WARN -> { System.out.println("[WARN]: " + log); break; }
-            case ERROR -> { System.err.println("[ERROR]: " + log); break; }
-            default -> { System.out.println("[?]: " + log); break; }
+            case INFO -> System.out.println("[INFO]: " + log);
+            case SUCCESS -> System.out.println("[SUCCESS]: " + log);
+            case WARN -> System.out.println("[WARN]: " + log);
+            case ERROR -> System.out.println("[ERROR]: " + log);
+            default -> System.out.println("[?]: " + log);
         }
     }
 

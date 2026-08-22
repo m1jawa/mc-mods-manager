@@ -72,7 +72,7 @@ public class FdSubommand implements Callable<Integer>{
         try {
             List<ModData> mods = ModsScanner.fetchAllFromDirectory(inputDir, ModLoader.fromString(modLoader));
 
-            if (mods.isEmpty()) {
+            if (mods == null || mods.isEmpty()) {
                 InfoManager.log("No valid mods found in directory: " + inputDir, InfoType.ERROR);
                 return 1;
             }

@@ -17,6 +17,10 @@ graalvmNative {
     }
 }
 
+run {
+    standardInput = System.in
+}
+
 group = 'io.github.m1jawa'
 version = '1.0.0'
 

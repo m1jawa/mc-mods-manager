@@ -37,7 +37,7 @@ public class ModDataFetcher {
                 String id = manifest.has("id") ? manifest.get("id").getAsString() : null;
                 String name = manifest.has("name") ? manifest.get("name").getAsString() : id;
 
-                return new ModData(id, name, ModLoader.FABRIC);
+                return new ModData(id, name, ModLoader.FABRIC, null, null);
             }
         }
     }

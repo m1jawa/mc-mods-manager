@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.github.m1jawa.mcmodsmanager.ModDownloaderProvider;
 import io.github.m1jawa.mcmodsmanager.cli.InfoManager;
 import io.github.m1jawa.mcmodsmanager.exceptions.ModNotFoundException;
 import io.github.m1jawa.mcmodsmanager.model.InfoType;
@@ -39,7 +38,7 @@ public class AsyncDownloader {
                     try {
                         downloadSemaphore.acquire();
 
-                        provider.downloadMod(mod, gameVersion, targetDir);
+                        provider.downloadMod(mod, gameVersion, targetDir, true);
 
                         successCount.incrementAndGet();
                         int current = completedCount.incrementAndGet();
