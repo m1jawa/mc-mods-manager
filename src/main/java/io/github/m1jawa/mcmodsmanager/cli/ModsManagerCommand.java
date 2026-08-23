@@ -2,8 +2,12 @@ package io.github.m1jawa.mcmodsmanager.cli;
 
 import io.github.m1jawa.mcmodsmanager.cli.subcommands.FdSubommand;
 import io.github.m1jawa.mcmodsmanager.cli.subcommands.MiSubcommand;
+import io.github.m1jawa.mcmodsmanager.file.CacheManager;
+import io.github.m1jawa.mcmodsmanager.minecraft.VersionsManager;
+import io.github.m1jawa.mcmodsmanager.model.InfoType;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(
     name = "mcmm",
@@ -14,6 +18,9 @@ import picocli.CommandLine.Command;
 )
 public class ModsManagerCommand implements Runnable {
 
+    @Option(names = {"--fetch-versions"}, description = "Updates the versions cache to verify whether the user entered the correct version.")
+    private boolean fetchVersions;
+
     public static void main(String[] args) {
         int exitCode = new CommandLine(new ModsManagerCommand()).execute(args);
         System.exit(exitCode);
@@ -21,12 +28,27 @@ public class ModsManagerCommand implements Runnable {
 
     @Override
     public void run() {
+
+        if (fetchVersions) {
+            try {
+                VersionsManager.updateCache();
+                InfoManager.log("Successfully updated Minecraft versions", InfoType.SUCCESS);
+                return;
+            }  catch (Exception e) {
+                InfoManager.log("Failed to update cache versions: " + e.getMessage(), InfoType.ERROR);
+                return;
+            }
+        }
+
         System.out.println("=== Minecraft Mods Manager | modes ===");
         System.out.printf( "Usage: mcmm <mode> [options]%n%n");
 
         System.out.println("Available modes:");
         System.out.println("  fd    Scans directory for existing mods and downloads them for a target game version");
         System.out.printf( "  mi    Manual installation. Search mods by name and choose what to download (Unsupported yet) %n%n");
+
+        System.out.println("Available options:");
+        System.out.printf( "  --fetch-versions   Updates the versions cache to verify whether the user entered the correct version%n%n");
 
         System.out.println("For more information on a specific mode, run:");
         System.out.printf( "  mcmm <mode> --help%n%n");

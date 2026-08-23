@@ -26,7 +26,6 @@ public class HttpManager {
     }
 
     public static HttpResponse<String> sendRequest(HttpClient client, String url) throws IOException, InterruptedException{
-        // requesting a mod
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("User-Agent", USER_AGENT)
@@ -34,7 +33,6 @@ public class HttpManager {
                 .build();
 
 
-        // looking for a response
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 

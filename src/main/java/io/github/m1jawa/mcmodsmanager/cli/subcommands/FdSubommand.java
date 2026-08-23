@@ -13,6 +13,7 @@ import io.github.m1jawa.mcmodsmanager.cli.ModDownloadWizard;
 import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
 import io.github.m1jawa.mcmodsmanager.exceptions.UnknownLoaderException;
 import io.github.m1jawa.mcmodsmanager.file.ModsScanner;
+import io.github.m1jawa.mcmodsmanager.minecraft.VersionsManager;
 import io.github.m1jawa.mcmodsmanager.model.InfoType;
 import io.github.m1jawa.mcmodsmanager.model.LoadedModsData;
 import io.github.m1jawa.mcmodsmanager.model.ModData;
@@ -74,6 +75,11 @@ public class FdSubommand implements Callable<Integer>{
 
         if (!Files.exists(outputDir)) {
             InfoManager.log("Output directory does not exists", InfoType.ERROR);
+            return 0;
+        }
+
+        if(!VersionsManager.checkIfPresents(gameVersion)) {
+            InfoManager.log("Can't check version, no cache or invalid input. Try to fetch versions: mcmm --fetch-versions", InfoType.ERROR);
             return 0;
         }
 
