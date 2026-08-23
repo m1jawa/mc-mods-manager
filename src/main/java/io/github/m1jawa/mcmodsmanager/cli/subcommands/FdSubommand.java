@@ -1,11 +1,15 @@
 package io.github.m1jawa.mcmodsmanager.cli.subcommands;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Callable;
 
 import io.github.m1jawa.mcmodsmanager.cli.InfoManager;
+import io.github.m1jawa.mcmodsmanager.cli.ModDownloadWizard;
 import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
 import io.github.m1jawa.mcmodsmanager.exceptions.UnknownLoaderException;
 import io.github.m1jawa.mcmodsmanager.file.ModsScanner;
@@ -26,7 +30,7 @@ import picocli.CommandLine.Option;
 public class FdSubommand implements Callable<Integer>{
     @Option(
         names = {"-v", "--game-version"},
-        description = "Target Minecraft version (e.g. 1.20.1, 1.20.4).",
+        description = "Target Minecraft version (e.g. 1.20.1, 26.3-snapshot-9).",
         required = true
     )
     private String gameVersion;
@@ -47,7 +51,7 @@ public class FdSubommand implements Callable<Integer>{
 
     @Option(
         names = {"-l", "--loader"},
-        description = "Mod loader to target (values: FABRIC).",
+        description = "Mod loader to target (values: fabric).",
         required = true
     )
     private String modLoader;
@@ -56,9 +60,28 @@ public class FdSubommand implements Callable<Integer>{
     @Override
     public Integer call() {
 
+        Scanner scanner = new Scanner(System.in);
+
         if ( gameVersion == null ) {
             InfoManager.log("Version was not entered", InfoType.ERROR);
-            return 1;
+            return 0;
+        }
+
+        if (!Files.exists(inputDir)) {
+            InfoManager.log("Input directory does not exists", InfoType.ERROR);
+            return 0;
+        }
+
+        if (!Files.exists(outputDir)) {
+            InfoManager.log("Output directory does not exists", InfoType.ERROR);
+            return 0;
+        }
+
+        try {
+            ModLoader.fromString(modLoader);
+        } catch (UnknownLoaderException e) {
+            InfoManager.log("Unknown mod loader", InfoType.ERROR);
+            return 0;
         }
 
         Path targetDir = (outputDir != null) ? outputDir : inputDir;
@@ -95,14 +118,26 @@ public class FdSubommand implements Callable<Integer>{
                     InfoType.SUCCESS
                 );
 
-                //TODO: asking if user wants manually install failed mods, manaual installation 
+                String answer = "";
+                while (!(answer.equals("y") || answer.equals("n"))) {
+                    System.out.print("Do you want manually download rest of the mods? (y/n): ");
+                    answer = scanner.nextLine().trim();
+                }
+
+                if (answer.equals("n")) return 0;
+
+                ModDownloadWizard downloadWizard = new ModDownloadWizard(10, true, true);
+                boolean completed = downloadWizard.run(scanner, downloadedModsResult.failedMods(), gameVersion, ModLoader.fromString(modLoader), outputDir);
+
+                if (completed) InfoManager.log("Installed all mods", InfoType.SUCCESS);
+                if (!completed) InfoManager.log("Downloading was interrupted by the user", InfoType.INFO);
             }
 
             return 0;
 
         } catch (IOException | ManifestNotFoundException | UnknownLoaderException e) {
             InfoManager.log(e.getMessage(), InfoType.ERROR);
-            return 1;
+            return 0;
         }
     }
 }
