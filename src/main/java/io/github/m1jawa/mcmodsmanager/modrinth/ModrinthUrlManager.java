@@ -3,7 +3,7 @@ package io.github.m1jawa.mcmodsmanager.modrinth;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import io.github.m1jawa.mcmodsmanager.model.ModData;
+import io.github.m1jawa.mcmodsmanager.model.IModData;
 import io.github.m1jawa.mcmodsmanager.model.ModLoader;
 
 public class ModrinthUrlManager {
@@ -23,7 +23,7 @@ public class ModrinthUrlManager {
         return "%s/search?query=%s&facets=%s".formatted(BASE_URL, encodedModName, facets);
     }
 
-    public static String getModSearchUrl(ModData modData, String gameVersion) {
+    public static String getModSearchUrl(IModData modData, String gameVersion) {
         return getModSearchUrl(
             modData.name(), 
             gameVersion, 

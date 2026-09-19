@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import io.github.m1jawa.mcmodsmanager.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.model.*;
 import io.github.m1jawa.mcmodsmanager.net.ModDownloaderProvider;
 import io.github.m1jawa.mcmodsmanager.cli.InfoManager;
 import io.github.m1jawa.mcmodsmanager.exceptions.ManifestNotFoundException;
@@ -15,8 +13,6 @@ import io.github.m1jawa.mcmodsmanager.exceptions.ModNotFoundException;
 import io.github.m1jawa.mcmodsmanager.exceptions.UnexpectedResponseStructureException;
 import io.github.m1jawa.mcmodsmanager.file.IOManager;
 import io.github.m1jawa.mcmodsmanager.file.ModDataFetcher;
-import io.github.m1jawa.mcmodsmanager.model.InfoType;
-import io.github.m1jawa.mcmodsmanager.model.ModData;
 import io.github.m1jawa.mcmodsmanager.net.HttpManager;
 
 public class ModrinthService implements ModDownloaderProvider{
@@ -30,10 +26,9 @@ public class ModrinthService implements ModDownloaderProvider{
     }
 
     @Override
-    public void downloadMod(ModData mod, String gameVersion, Path targetDir, boolean requiresSimilarityConfirmation) throws IOException, InterruptedException, UnexpectedResponseStructureException, ModNotFoundException, ManifestNotFoundException{
+    public void downloadMod(IModData mod, String gameVersion, Path targetDir, boolean requiresSimilarityConfirmation) throws IOException, InterruptedException, UnexpectedResponseStructureException, ModNotFoundException, ManifestNotFoundException{
         // requesting a slug
         String slug = getModSlug(mod, gameVersion); // first api request
-        
 
         // requesting a mod
         String slugSearchUrl = ModrinthUrlManager.getModSlugSearchUrl(slug, gameVersion, mod.modLoader());
@@ -64,7 +59,7 @@ public class ModrinthService implements ModDownloaderProvider{
         }
     }
 
-    public static List<ModData> getSearchedModsData(String name, String gameVersion, ModLoader loader, int searchLimit, int page) throws IOException, InterruptedException, UnexpectedResponseStructureException {
+    public static List<SearchedModData> getSearchedModsData(String name, String gameVersion, ModLoader loader, int searchLimit, int page) throws IOException, InterruptedException, UnexpectedResponseStructureException {
         String searchUrl = ModrinthUrlManager.getModNameSearchUrl(name, gameVersion, loader, searchLimit, page-1);
         HttpResponse<String> response = executeApiRequest(searchUrl);
 
@@ -80,7 +75,7 @@ public class ModrinthService implements ModDownloaderProvider{
 
         HttpResponse<String> response = HttpManager.sendRequest(url);
 
-        if (response.statusCode() == 429) {
+        if (response.statusCode() == 429) { // wasn't tested, open an issue or do a PR if not works
             long retryAfterSeconds = response.headers()
                     .firstValueAsLong("Retry-After")
                     .orElse(5L);
@@ -99,7 +94,7 @@ public class ModrinthService implements ModDownloaderProvider{
         return response;
     }
 
-    private static String getModSlug(ModData mod, String gameVersion) throws IOException, InterruptedException, UnexpectedResponseStructureException, ModNotFoundException{
+    private static String getModSlug(IModData mod, String gameVersion) throws IOException, InterruptedException, UnexpectedResponseStructureException, ModNotFoundException{
 
         HttpResponse<String> response = executeApiRequest(ModrinthUrlManager.getModSearchUrl(mod, gameVersion));
 

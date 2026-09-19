@@ -5,6 +5,7 @@ import com.google.gson.*;
 import io.github.m1jawa.mcmodsmanager.exceptions.UnexpectedResponseStructureException;
 import io.github.m1jawa.mcmodsmanager.model.ModData;
 import io.github.m1jawa.mcmodsmanager.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.model.SearchedModData;
 
 import java.util.*;
 
@@ -52,17 +53,15 @@ public class ModrinthJsonParser {
         return downloadUrl;
     }
 
-    //maps are contain names as keys and slugs as values
-    public static List<ModData> extractModsDataFromSearch(String jsonString, ModLoader loader) throws UnexpectedResponseStructureException{
-
-        List<ModData> mods = new ArrayList<>(); //LinkedHashMap, since the modifications are sorted by the number of downloads
+    public static List<SearchedModData> extractModsDataFromSearch(String jsonString, ModLoader loader) throws UnexpectedResponseStructureException{
+        List<SearchedModData> mods = new ArrayList<>(); //LinkedHashMap, since the mods are sorted by the number of downloads
         JsonArray hits = getHitsFromResponse(jsonString);
 
         if (hits == null) return mods;
 
         for (JsonElement item : hits) {
             try {
-                mods.add( new ModData(
+                mods.add( new SearchedModData(
                         item.getAsJsonObject().get("slug").getAsString(),
                         item.getAsJsonObject().get("title").getAsString(),
                         loader,
@@ -87,7 +86,7 @@ public class ModrinthJsonParser {
 
         JsonObject jsonResponse = element.getAsJsonObject();
 
-        if (!jsonResponse.has("hits")) return null;
+        if (!jsonResponse.has("hits")) throw new UnexpectedResponseStructureException("Json response does not have hits: " + jsonResponse);
 
         JsonArray hits = jsonResponse.get("hits").getAsJsonArray();
 

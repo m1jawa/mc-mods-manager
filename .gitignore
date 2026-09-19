@@ -1,4 +1,5 @@
 !gradle/wrapper/gradle-wrapper.jar
+!testdata/**/*.jar
 
 # === Compiled Java class files ===
 *.class
@@ -28,7 +29,6 @@ out/
 *.iml
 *.iws
 *.ipr
-out/
 
 # Eclipse
 .settings/

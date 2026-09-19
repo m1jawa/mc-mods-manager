@@ -57,6 +57,9 @@ public class FdSubommand implements Callable<Integer>{
     )
     private String modLoader;
 
+    @Option( names = {"--skip-versions-prot"}, description = "Forces skip of game version validation")
+    private boolean skipVersionsProtection;
+
 
     @Override
     public Integer call() {
@@ -78,8 +81,8 @@ public class FdSubommand implements Callable<Integer>{
             return 0;
         }
 
-        if(!VersionsManager.checkIfPresents(gameVersion)) {
-            InfoManager.log("Can't check version, no cache or invalid input. Try to fetch versions: mcmm --fetch-versions", InfoType.ERROR);
+        if(!VersionsManager.checkIfPresents(gameVersion) && !skipVersionsProtection) {
+            InfoManager.log("Can't check version, no cache or invalid input. Try to fetch versions(mcmm --fetch-versions) or run with skip-version-validation flag (--skip-version-prot)", InfoType.ERROR);
             return 0;
         }
 
@@ -101,7 +104,7 @@ public class FdSubommand implements Callable<Integer>{
         try {
             List<ModData> mods = ModsScanner.fetchAllFromDirectory(inputDir, ModLoader.fromString(modLoader));
 
-            if (mods == null || mods.isEmpty()) {
+            if (mods.isEmpty()) {
                 InfoManager.log("No valid mods found in directory: " + inputDir, InfoType.ERROR);
                 return 1;
             }
@@ -132,8 +135,18 @@ public class FdSubommand implements Callable<Integer>{
 
                 if (answer.equals("n")) return 0;
 
-                ModDownloadWizard downloadWizard = new ModDownloadWizard(10, true, true);
-                boolean completed = downloadWizard.run(scanner, downloadedModsResult.failedMods(), gameVersion, ModLoader.fromString(modLoader), outputDir);
+                ModDownloadWizard downloadWizard = new ModDownloadWizard(10, false, true);
+
+                boolean completed = downloadWizard.run(
+                        scanner,
+                        downloadedModsResult //Strings with names instead of modData
+                                .failedMods()
+                                .stream().map(ModData::name)
+                                .toList(),
+                        gameVersion,
+                        ModLoader.fromString(modLoader),
+                        outputDir
+                );
 
                 if (completed) InfoManager.log("Installed all mods", InfoType.SUCCESS);
                 if (!completed) InfoManager.log("Downloading was interrupted by the user", InfoType.INFO);

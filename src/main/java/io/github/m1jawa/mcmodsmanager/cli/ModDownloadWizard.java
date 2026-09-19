@@ -1,8 +1,6 @@
 package io.github.m1jawa.mcmodsmanager.cli;
 
-import io.github.m1jawa.mcmodsmanager.model.InfoType;
-import io.github.m1jawa.mcmodsmanager.model.ModData;
-import io.github.m1jawa.mcmodsmanager.model.ModLoader;
+import io.github.m1jawa.mcmodsmanager.model.*;
 import io.github.m1jawa.mcmodsmanager.modrinth.ModrinthService;
 import io.github.m1jawa.mcmodsmanager.net.ModDownloaderProvider;
 
@@ -25,11 +23,12 @@ public class ModDownloadWizard {
         this.allowSkip = allowSkip;
     }
 
-    public boolean run(Scanner scanner, List<ModData> requestedMods, String gameVersion, ModLoader loader, Path targetPath) {
+    public boolean run(Scanner scanner, List<String> requestedModNames, String gameVersion, ModLoader loader, Path targetPath) {
 
-        List<ModData> mods = new ArrayList<>(requestedMods);
-        List<ModData> fetchedMods = new ArrayList<>();
-        ModData currentMod = mods.getFirst();
+        List<String> modNames = new ArrayList<>(requestedModNames);
+        List<SearchedModData> fetchedMods = new ArrayList<>();
+        String currentModName = modNames.getFirst();
+        SearchedModData selectedMod = null;
         boolean needsFetch = true;
         boolean itemSelected = false;
         int page = 1;
@@ -40,7 +39,7 @@ public class ModDownloadWizard {
                 //fetching mods if necessary
                 if (needsFetch) {
                     try {
-                        fetchedMods = ModrinthService.getSearchedModsData(currentMod.name(), gameVersion, loader, pageSize, page);
+                        fetchedMods = ModrinthService.getSearchedModsData(currentModName, gameVersion, loader, pageSize, page);
                         needsFetch = false;
 
                     } catch (Exception e) {
@@ -48,14 +47,15 @@ public class ModDownloadWizard {
                         InfoManager.log("Skipping this mod", InfoType.INFO);
 
                         //next mod
-                        mods.removeFirst();
-                        if (mods.isEmpty()) return true;
-                        currentMod = mods.getFirst();
+                        modNames.removeFirst();
+                        if (modNames.isEmpty()) return true;
+                        currentModName = modNames.getFirst();
+                        selectedMod = null;
                     }
                 }
 
                 //rendering list of mods
-                renderListPage(fetchedMods, page);
+                renderListPage(fetchedMods, currentModName, page, allowSkip);
 
                 //asking user what to do next
                 System.out.print("Enter choice: ");
@@ -65,7 +65,7 @@ public class ModDownloadWizard {
                 if (input.matches("[0-9]")) {
                     int idx = Integer.parseInt(input);
                     if (idx < fetchedMods.size()) {
-                        currentMod = fetchedMods.get(idx);
+                        selectedMod = fetchedMods.get(idx);
                         itemSelected = true;
                     } else {
                         InfoManager.log("Invalid index. Choice out of bounds", InfoType.ERROR);
@@ -88,9 +88,10 @@ public class ModDownloadWizard {
                     needsFetch = true;
 
                 } else if (input.equals("s") && allowSkip) {
-                    mods.removeFirst();
-                    if (mods.isEmpty()) return true;
-                    currentMod = mods.getFirst();
+                    modNames.removeFirst();
+                    if (modNames.isEmpty()) return true;
+                    currentModName = modNames.getFirst();
+                    selectedMod = null;
 
                     //refresh the menu
                     needsFetch = true;
@@ -104,7 +105,7 @@ public class ModDownloadWizard {
 
             } else {//Details about mod
                 //rendering
-                renderDetailPage(currentMod);
+                renderDetailPage(selectedMod, allowSkip);
 
                 //asking user what to do next
                 System.out.print("Enter choice: ");
@@ -113,12 +114,15 @@ public class ModDownloadWizard {
                 //parsing
                 if (input.equals("d")) {
                     try {
-                        provider.downloadMod(currentMod, gameVersion, targetPath, false);
-                        InfoManager.log("Downloaded " + currentMod.name(), InfoType.SUCCESS);
+                        provider.downloadMod(selectedMod, gameVersion, targetPath, false);
+                        InfoManager.log("Downloaded " + selectedMod.name(), InfoType.SUCCESS);
 
-                        mods.removeFirst();
-                        if (mods.isEmpty()) return true;
-                        currentMod = mods.getFirst();
+                        if (exitOnDownload) return true;
+
+                        modNames.removeFirst();
+                        if (modNames.isEmpty()) return true;
+                        currentModName = modNames.getFirst();
+                        selectedMod = null;
 
                         //reset the menu
                         needsFetch = true;
@@ -131,9 +135,10 @@ public class ModDownloadWizard {
                     itemSelected = false;
 
                 } else if (input.equals("s") && allowSkip) {
-                    mods.removeFirst();
-                    if (mods.isEmpty()) return true;
-                    currentMod = mods.getFirst();
+                    modNames.removeFirst();
+                    if (modNames.isEmpty()) return true;
+                    currentModName = modNames.getFirst();
+                    selectedMod = null;
 
                     needsFetch = true;
                     itemSelected = false;
@@ -148,38 +153,37 @@ public class ModDownloadWizard {
         }
     }
 
-    public boolean run(Scanner scanner, String modName, String gameVersion, ModLoader loader, Path targetPath) {
-        ModData mod = new ModData(null, modName, null, null, null);
-        List<ModData> mods = new ArrayList<>(List.of(mod));
-
-        return run(scanner, mods, gameVersion, loader, targetPath);
+    public boolean run(Scanner scanner, String mod, String gameVersion, ModLoader loader, Path targetPath) {
+        return run(scanner, List.of(mod), gameVersion, loader, targetPath);
     }
 
-    private static void renderListPage(List<ModData> mods, int currentPage) {
+    private static void renderListPage(List<? extends IModData> mods, String query, int currentPage, boolean allowSkip) {
 
         int i = 0;
 
-        System.out.printf("=== Search results | Page: %d ===%n", currentPage);
+        System.out.printf("=== Search results | %s | Page: %d ===%n", query, currentPage);
 
-        for (ModData md : mods) {
-            System.out.printf("[%d] %s%n", i++, md.name());
+        for (IModData mod : mods) {
+            System.out.printf("[%d] %s%n", i++, mod.name());
         }
 
         StringBuilder controls = new StringBuilder("Controls: [n]ext page; ");
         if (currentPage > 1) controls.append("[p]revious page; ");
+        if (allowSkip) controls.append("[s]kip this mod; ");
         controls.append("[0-9] select item; [q]uit").append(System.lineSeparator());
 
         System.out.println(controls);
     }
 
-    private static void renderDetailPage(ModData mod) {
+    private static void renderDetailPage(SearchedModData mod,  boolean allowSkip) {
 
         System.out.printf("=== Mod's Details ===%n");
         System.out.printf("Name: %s%n", mod.name());
         System.out.printf("Downloads: %s%n", parseDownloads(mod.downloads()));
         System.out.printf("Description: %s%n%n", mod.description());
 
-        System.out.println("Controls: [d]ownload; [b]ack to list; [q]uit");
+        String skipPart = allowSkip ? "[s]kip this mod; " : "";
+        System.out.printf("Controls: [d]ownload; %s[b]ack to list; [q]uit%n".formatted(skipPart));
 
     }
 

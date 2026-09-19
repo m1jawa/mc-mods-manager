@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import io.github.m1jawa.mcmodsmanager.cli.InfoManager;
 import io.github.m1jawa.mcmodsmanager.cli.ModDownloadWizard;
 import io.github.m1jawa.mcmodsmanager.exceptions.UnknownLoaderException;
+import io.github.m1jawa.mcmodsmanager.minecraft.VersionsManager;
 import io.github.m1jawa.mcmodsmanager.model.InfoType;
 import io.github.m1jawa.mcmodsmanager.model.ModData;
 import io.github.m1jawa.mcmodsmanager.model.ModLoader;
@@ -27,19 +28,25 @@ import picocli.CommandLine.Command;
 public class MiSubcommand implements Callable<Integer>{
 
     private static final int PAGE_SIZE = 10;
-    private static final ModDownloaderProvider provider = ModrinthService.getInstance();
 
     @Override
     public Integer call(){
         Scanner scanner = new Scanner(System.in);
-        ModDownloadWizard downloadWizard = new ModDownloadWizard(PAGE_SIZE, true, false);
+        ModDownloadWizard downloadWizard = new ModDownloadWizard(PAGE_SIZE, false, false);
 
         // obtaining info about the mod
         System.out.print("Enter mod name: ");
         String modName = scanner.nextLine().trim();
 
+        boolean correctVersion = false;
+        String gameVersion = "";
         System.out.print("Enter game version: ");
-        String gameVersion = scanner.nextLine().trim().toLowerCase().replaceAll("[^a-z0-9.-]", "");
+        while (!correctVersion) {
+            gameVersion = scanner.nextLine().trim().toLowerCase().replaceAll("[^a-z0-9.-]", "");
+
+            correctVersion = VersionsManager.checkIfPresents(gameVersion);
+            if (!correctVersion) InfoManager.log("Invalid game version, try again", InfoType.ERROR);
+        }
 
         ModLoader loader = askForModLoader(scanner);
 
