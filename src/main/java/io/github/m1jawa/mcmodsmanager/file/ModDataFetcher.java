@@ -70,6 +70,7 @@ public class ModDataFetcher {
         }
     }
 
+    //todo fix: stops if cant find a manifest
     public static ModData fetchModData(Path path, ModLoader loader) throws IOException, ManifestNotFoundException{
         switch (loader) {
             case FABRIC:
@@ -81,6 +82,7 @@ public class ModDataFetcher {
         }
     }
 
+    //debug
     public static void main(String[] args){
         try {
             System.out.println (
